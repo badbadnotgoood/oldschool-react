@@ -1,0 +1,131 @@
+@font-face {
+  font-family: "Cera Round Pro Regular";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Cera Round Pro Regular"),
+    url("Media/fonts/CeraRoundProRegular.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Cera Round Pro Medium";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Cera Round Pro Medium"),
+    url("Media/fonts/CeraRoundProMedium.woff") format("woff");
+}
+
+body {
+  font-family: "Cera Round Pro Regular", sans-serif;
+  margin: unset;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+body * {
+  all: unset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+button,
+a {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 100vh;
+}
+
+a {
+  cursor: pointer;
+}
+
+.active-burgers {
+  color: white !important;
+  background-color: #c91e25 !important;
+  transition: all 0.25s;
+}
+
+.active-sandwiches {
+  color: white !important;
+  background-color: #199869 !important;
+  transition: all 0.25s;
+}
+
+.active-default {
+  color: #c91e25 !important;
+  transition: all 0.25s;
+}
+
+.active-delivery {
+  background-color: #2b2d36;
+  color: #ffffff;
+}
+
+.active-address {
+  text-decoration: unset !important;
+}
+
+button:disabled,
+a:disabled,
+input:disabled,
+label:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.active-adds {
+  transform: rotate(-45deg);
+  background-color: #2B2D36;
+  background-image: url("data:image/svg+xml,%3Csvg width='13' height='12' viewBox='0 0 13 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.68213 5.34064C1.24654 5.34064 0.893418 5.69376 0.893418 6.12935C0.893418 6.56494 1.24654 6.91806 1.68213 6.91806V5.34064ZM11.6821 6.91806C12.1177 6.91806 12.4708 6.56494 12.4708 6.12935C12.4708 5.69376 12.1177 5.34064 11.6821 5.34064V6.91806ZM1.68213 6.91806H6.05713V5.34064H1.68213V6.91806ZM6.05713 6.91806H11.6821V5.34064H6.05713V6.91806Z' fill='%23fff'/%3E%3Cpath d='M6.68219 1.13015V11.1301' stroke='%23fff' stroke-width='1.57742' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E%0A") !important;
+}
+
+.react-dadata__container {
+  width: 420px;
+  height: 40px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 20px;
+}
+
+.react-dadata__container input {
+  width: 100%;
+  height: 100%;
+  padding: unset;
+  border: unset;
+  font-size: 14px;
+  line-height: 15px;
+}
+
+.react-dadata__container input::placeholder {
+  color: #8d929e;
+}
+
+.react-dadata__container > div {
+  height: 100%;
+  width: 100%;
+}
+
+.react-dadata__container input:focus {
+  box-shadow: unset;
+}
+
+.react-dadata__suggestions {
+  flex-direction: column;
+}
+
+.react-dadata__suggestions > button {
+  justify-content: flex-start;
+  display: flex;
+}
