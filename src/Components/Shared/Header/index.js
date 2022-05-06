@@ -291,10 +291,6 @@ const RestaurantContainer = styled.button`
   align-items: center;
   justify-content: flex-start;
 
-  &:hover {
-    color: #c91e25;
-  }
-
   @media ${device.screen999to768},
     ${device.screen767to425},
     ${device.screen424to375},
@@ -500,7 +496,9 @@ const Header = ({
           {!order && (
             <BasketButtonContainer
               onClick={() => {
-                updateModalStatus(5);
+                if (basketList["0"].length + basketList["1"].length > 0) {
+                  updateModalStatus(5);
+                }
               }}
             >
               <BasketText>Корзина</BasketText>

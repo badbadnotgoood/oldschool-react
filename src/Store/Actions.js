@@ -152,6 +152,16 @@ export const editBasketList = (rest, index, method) => async (dispatch) => {
   });
 };
 
+export const clearBasketList = () => async (dispatch) => {
+  await axios.get("../api/0.1.0/clearBasket").then((response) => {
+    const data = response.data;
+    dispatch({
+      type: "UPDATE_BASKET_LIST",
+      payload: data,
+    });
+  });
+};
+
 export const updateTempRestId = (id) => {
   return {
     type: "UPDATE_TEMP_REST_ID",

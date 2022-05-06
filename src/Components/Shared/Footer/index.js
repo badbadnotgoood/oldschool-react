@@ -5,7 +5,7 @@ import device from "../../device";
 import LogoBurg from "../../../Media/images/LogoBurg.svg";
 import LogoSand from "../../../Media/images/LogoSand.svg";
 import InstBurg from "../../../Media/images/InstBurg.svg";
-import InstSand from "../../../Media/images/InstSand.svg"
+import InstSand from "../../../Media/images/InstSand.svg";
 
 const CopyrightText = styled.p`
   color: #bcbcbc;
@@ -393,8 +393,20 @@ const Footer = () => {
   return (
     <FooterContainer>
       <ImagesContainer>
-        <Images src={LogoBurg} />
-        <Images src={LogoSand} />
+        <Images
+          src={LogoBurg}
+          onClick={() => {
+            document.location.reload();
+            window.scrollTo(0, 0)
+          }}
+        />
+        <Images
+          src={LogoSand}
+          onClick={() => {
+            document.location.reload();
+            window.scrollTo(0, 0)
+          }}
+        />
       </ImagesContainer>
       <MediaContainer>
         <LinkContainer>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 
@@ -8,6 +8,7 @@ import {
   updateActiveRest,
   updateActiveRestAddress,
   updateModalStatus,
+  clearBasketList,
 } from "../../../Store/Actions";
 import Attention from "../Attention";
 
@@ -153,13 +154,19 @@ const RestAddressContainer = styled.div`
 
 const RestAddress = ({
   restList,
+  basketList,
   activeRest,
+  clearBasketList,
   updateModalStatus,
   updateActiveRest,
 }) => {
   const [rest, setRest] = useState();
   const [address, setAddress] = useState();
   const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    console.log(activeRest);
+  }, [activeRest]);
 
   return (
     <RestAddressContainer>
@@ -174,9 +181,18 @@ const RestAddress = ({
                 if (activeRest === i + 1) {
                   updateModalStatus(0);
                 } else {
-                  setRest(i + 1);
-                  setAddress(el["Address"]);
-                  setShow(true);
+                  const basketCount =
+                    basketList[0].length + basketList[1].length;
+                  if (basketCount > 0) {
+                    setShow(true);
+                    setAddress(el["Address"])
+                    setRest(i + 1)
+                  } else {
+                    setShow(false);
+                    updateActiveRest(i + 1);
+                    updateActiveRestAddress(el["Address"]);
+                    updateModalStatus(0);
+                  }
                 }
               }}
               disabled={!el["RestStatus"] ? true : false}
@@ -246,6 +262,7 @@ const RestAddress = ({
             continueFunc={() => {
               updateActiveRest(rest);
               updateActiveRestAddress(address);
+              clearBasketList();
               updateModalStatus(0);
             }}
           />
@@ -258,8 +275,13 @@ const RestAddress = ({
 const mapStateToProps = (state) => ({
   restList: state.data.restList,
   activeRest: state.activeRest,
+  basketList: state.basketList,
 });
 
-const mapDispatchToProps = { updateModalStatus, updateActiveRest };
+const mapDispatchToProps = {
+  updateModalStatus,
+  updateActiveRest,
+  clearBasketList,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(RestAddress);

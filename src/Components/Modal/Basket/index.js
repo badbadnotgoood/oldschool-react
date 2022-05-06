@@ -275,7 +275,7 @@ const BasketContainer = styled.div`
 
   @media ${device.screenMaxto1280}, ${device.screen1279to1000} {
     border-radius: 15px;
-    top: 85px;
+    top: 70px;
     right: 30px;
 
     & > div {
@@ -300,6 +300,8 @@ const MemoDishListComponent = ({ data, action }) => {
             width: "115px",
             borderRadius: "13px",
             backgroundSize: "215%",
+            borderRadius: "16px",
+            border: "1px solid #e0e0e0",
           }}
           defstyle={{
             minHeight: "115px",
@@ -308,6 +310,8 @@ const MemoDishListComponent = ({ data, action }) => {
             width: "115px",
             borderRadius: "13px",
             backgroundSize: "80%",
+            borderRadius: "16px",
+            border: "1px solid #f3f3f3",
           }}
         />
         <BasketDishInfo>

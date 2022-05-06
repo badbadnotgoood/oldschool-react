@@ -6,7 +6,7 @@ import delivery1 from "../../../Media/images/delivery1.svg";
 import delivery2 from "../../../Media/images/delivery2.svg";
 import {
   updateActiveRest,
-  updateActiveRestAddress,
+  clearBasketList,
   updateDeliveryStatus,
   updateModalStatus,
 } from "../../../Store/Actions";
@@ -33,9 +33,15 @@ const Button = styled.button`
   box-shadow: 0px 12.5px 12.5px rgba(0, 0, 0, 0.1);
   border-radius: 20px;
   background-image: url(${(props) => props.source});
-  background-size: 100%;
+  background-size: 235px;
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: center 60px;
+  padding-bottom: 30px;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 20px;
+  align-items: flex-end;
+  font-family: "Cera Round Pro Medium";
 
   &:first-child {
     margin-right: 15px;
@@ -66,13 +72,16 @@ const DeliveryContainer = styled.div`
 `;
 
 const Delivery = ({
+  clearBasketList,
   updateDeliveryStatus,
   updateModalStatus,
   updateActiveRest,
   activeRest,
+  basketList,
+  deliveryStatus,
 }) => {
+  const [delivery, setDelivery] = useState();
   const [show, setShow] = useState(false);
-  const [delivery, setDelivery] = useState(0);
 
   return (
     <DeliveryContainer>
@@ -81,22 +90,44 @@ const Delivery = ({
         <Button
           source={delivery1}
           onClick={() => {
-            if (activeRest === 1) {
-              updateModalStatus(0);
-              updateDeliveryStatus(0)
+            if (deliveryStatus === 1) {
+              updateModalStatus(2);
             } else {
-              setShow(true);
-              setDelivery(0);
+              const basketCount = basketList[0].length + basketList[1].length;
+              if (basketCount > 0) {
+                setShow(true);
+                setDelivery(1);
+              } else {
+                setShow(false);
+                updateDeliveryStatus(1);
+                updateModalStatus(2);
+              }
             }
           }}
-        />
+        >
+          Навынос
+        </Button>
         <Button
           source={delivery2}
           onClick={() => {
-            updateDeliveryStatus(1);
-            updateModalStatus(2);
+            if (deliveryStatus === 2) {
+              updateActiveRest(1)
+              updateModalStatus(0);
+            } else {
+              const basketCount = basketList[0].length + basketList[1].length;
+              if (basketCount > 0) {
+                setShow(true);
+                setDelivery(2);
+              } else {
+                setShow(false);
+                updateDeliveryStatus(2);
+                updateModalStatus(0);
+              }
+            }
           }}
-        />
+        >
+          Доставка
+        </Button>
       </ButtonContainer>
       <SkipButton
         onClick={() => {
@@ -113,12 +144,14 @@ const Delivery = ({
             }}
             continueFunc={() => {
               setShow(false);
-              updateDeliveryStatus(delivery);
-              if (delivery === 0) {
+              clearBasketList();
+              if (delivery === 1) {
+                updateDeliveryStatus(delivery);
                 updateModalStatus(0);
-                updateActiveRest(1);
               } else {
-                updateModalStatus(2);
+                updateActiveRest(1);
+                updateDeliveryStatus(delivery);
+                updateModalStatus(0);
               }
             }}
           />
@@ -130,9 +163,12 @@ const Delivery = ({
 
 const mapStateToProps = (state) => ({
   activeRest: state.activeRest,
+  basketList: state.basketList,
+  deliveryStatus: state.deliveryStatus,
 });
 
 const mapDispatchToProps = {
+  clearBasketList,
   updateDeliveryStatus,
   updateModalStatus,
   updateActiveRest,

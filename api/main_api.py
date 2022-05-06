@@ -76,7 +76,9 @@ def get_data_info():
     data_info_restList = data_info["RestList"]
     data_info_menu = data_info["Menu"]
     data_info_modsAdds = data_info["ModsAdds"]
-    return (data_info_categories, data_info_restList, data_info_menu, data_info_modsAdds)
+    data_sandwich_constructors = data_info["SandwichConstructors"]
+    data_sandwich_adds_names = data_info["SandwichAddsNames"]
+    return (data_info_categories, data_info_restList, data_info_menu, data_info_modsAdds, data_sandwich_constructors, data_sandwich_adds_names)
 
 
 def get_rests():
@@ -196,7 +198,7 @@ def test():
 def get_menu():
     name_arr = []
     modsaddsarr = []
-    
+
     rest_id = set_id()
     if not "RestId" in session:
         session["RestId"] = rest_id
@@ -218,13 +220,100 @@ def get_menu():
             return {
                 "status": 0
             }
-        data_categories, data_restList, data_menu, data_modsadds = get_data_info()
+        data_categories, data_restList, data_menu, data_modsadds, data_sandwich_constructors, data_sandwich_adds_names = get_data_info()
 
         temp_menu, categories = get_temp_menu(data_categories, data_rest)
 
         response_menu = []
 
-        for el1 in temp_menu:
+        restrict_array = []
+
+        constructor_response = []
+
+        temp_restrict_array = ["СЭНДВИЧ ОВОЩНОЙ",
+                               "МИНИ ОВОЩНОЙ", "КЛАБ ОВОЩНОЙ", "РОЛЛ ОВОЩНОЙ"]
+
+        for el1 in data_sandwich_constructors:
+            for el2 in el1["content"]:
+                restrict_array.append(el2)
+
+        wrong_arr = []
+        for el1 in data_sandwich_constructors:
+            temp_constructor_array = []
+            categname = ""
+            rest = 1
+            for el2 in temp_menu:
+                if el2["name"] in el1["content"]:
+
+                    mods = []
+                    adds = []
+                    add_price = 0
+                    add_code = 0
+                    add_name = ""
+                    name = ""
+                    categname = el2["categname"]
+
+                    for el3 in data_menu:
+                        if el3["name1"] in el2["name"]:
+                            name = el3["name2"]
+
+                    for el3 in el2["modifiers"]:
+                        groupname = el3["groupname"]
+                        for el4 in el3["items"]:
+                            addsmods_name = ""
+                            if el4["name"] not in modsaddsarr:
+                                modsaddsarr.append(el4["name"])
+                            for el5 in data_modsadds:
+                                if el5["name1"] in el4["name"]:
+                                    addsmods_name = el5["name2"]
+
+                            if addsmods_name in data_sandwich_adds_names and addsmods_name in name:
+                                add_price = el4["price"] // 100
+                                add_code = el4["code"]
+                                add_name = addsmods_name
+                            else:
+                                temp_moddifier = {
+                                    "name": addsmods_name,
+                                    "code": el4["code"],
+                                    "price": el4["price"] // 100,
+                                }
+                                if "БЕЗ" in groupname:
+                                    mods.append(temp_moddifier)
+                                elif "ДОП" in groupname:
+                                    adds.append(temp_moddifier)
+                    temp_constructor_array.append({
+                        "name": name,
+                        "code": el2["code"],
+                        "categname": el2["categname"],
+                        "price": el2["price"] // 100,
+                        "addname": add_name,
+                        "addprice": add_price,
+                        "addcode": add_code,
+                        "addactive": False,
+                        "addstatus": False,
+                        "mods": mods,
+                        "adds": adds,
+                        "rest": rest,
+                        "stop": el2["rests"]
+                    })
+            constructor_response.append({
+                "name": el1["name"],
+                "categname": categname,
+                "rest": rest,
+                "content": temp_constructor_array,
+                "constructor": True
+            })
+        print(wrong_arr)
+
+        sorted_menu = []
+
+        for el1 in data_menu:
+            for el2 in temp_menu:
+                if el1["name1"] in el2["name"] and el2 not in sorted_menu:
+                    sorted_menu.append(el2)
+
+        for el1 in sorted_menu:
+
             mods = []
             adds = []
             rest = 1
@@ -233,52 +322,55 @@ def get_menu():
             for el2 in data_menu:
                 if el2["name1"] in el1["name"]:
                     name = el2["name2"]
-                #     break
                 # else:
-                #     name = el1["name"]
+                #     if el1["name"] not in wrong_arr:
+                #         wrong_arr.append(el1["name"])
 
             if "OLDSCHOOL BURGERS" in el1["categpath"]:
                 rest = 0
-            if "SANDWICH STREET" in el1["categpath"]:
+            elif "SANDWICH STREET" in el1["categpath"]:
                 rest = 1
+            if el1["name"] not in restrict_array:
+                for el2 in el1["modifiers"]:
+                    groupname = el2["groupname"]
+                    for el3 in el2["items"]:
+                        addsmods_name = ""
+                        if el3["name"] not in modsaddsarr:
+                            modsaddsarr.append(el3["name"])
+                        for el4 in data_modsadds:
+                            if el4["name1"] in el3["name"]:
+                                addsmods_name = el4["name2"]
 
-            for el2 in el1["modifiers"]:
-                groupname = el2["groupname"]
-                for el3 in el2["items"]:
-                    addsmods_name = ""
-                    if el3["name"] not in modsaddsarr:
-                        modsaddsarr.append(el3["name"])
-                    for el4 in data_modsadds:
-                        if el4["name1"] in el3["name"]:
-                            addsmods_name = el4["name2"]
-                    
-                    temp_moddifier = {
-                        "name": addsmods_name,
-                        "code": el3["code"],
-                        "price": el3["price"] // 100,
-                    }
-                    if "БЕЗ" in el2["groupname"]:
-                        mods.append(temp_moddifier)
-                    if "ДОП" in el2["groupname"]:
-                        adds.append(temp_moddifier)
+                        temp_moddifier = {
+                            "name": addsmods_name,
+                            "code": el3["code"],
+                            "price": el3["price"] // 100,
+                        }
+                        if "БЕЗ" in groupname:
+                            mods.append(temp_moddifier)
+                        elif "ДОП" in groupname:
+                            adds.append(temp_moddifier)
 
-            response_menu.append({
-                "name": name,
-                "code": el1["code"],
-                "categname": el1["categname"],
-                "price": el1["price"] // 100,
-                "mods": mods,
-                "adds": adds,
-                "rest": rest,
-                "stop": el1["rests"]
-            })
-            name_arr.append(el1["name"])
-        
+                response_menu.append({
+                    "name": name,
+                    "code": el1["code"],
+                    "categname": el1["categname"],
+                    "price": el1["price"] // 100,
+                    "mods": mods,
+                    "adds": adds,
+                    "rest": rest,
+                    "stop": el1["rests"],
+                    "constructor": False
+                })
+                name_arr.append(el1["name"])
+
         temparr = []
-        
+
         for el in modsaddsarr:
             temparr.append(el.replace("- без", "").replace("- доп", ""))
-        print(modsaddsarr)
+
+        for el in constructor_response:
+            response_menu.append(el)
 
         return json.dumps({
             "RestId": rest_id,
@@ -843,9 +935,8 @@ def clear_basket():
     basket_list_temp = {"0": [], "1": []}
     session["basketList"] = basket_list_temp
     session.modified = True
-    return {
-        "status": 1
-    }
+
+    return json.dumps(basket_list_temp)
 
 
 # @application.route("/api/0.1.0/getHistoryStatus", ["POST"])

@@ -4,6 +4,66 @@ import { connect } from "react-redux";
 
 import { updateModalStatus, updateBasketList } from "../../../Store/Actions";
 
+const MemoSandItemPrice = styled.div`
+  background: #f3f3f3;
+  border-radius: 15px;
+  width: 75px;
+  height: 30px;
+  padding: 5px 15px;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  ${(props) =>
+    props.status === 1 &&
+    `
+      background-color: #199869;
+      background-image: url("data:image/svg+xml,%3Csvg width='15' height='14' viewBox='0 0 15 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14 1L6.10281 13L1 6.8222' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E%0A");
+    `}
+
+  ${(props) =>
+    props.status === 2 &&
+    `
+      background-color: #199869; 
+      color: white;
+    `}
+`;
+
+const MemoSandItemName = styled.p`
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 19px;
+  margin-left: 10px;
+  margin-right: 10px;
+`;
+
+const MemoSandItem = styled.button`
+  height: 35px;
+  width: 100%;
+  background: #fafafa;
+  border-radius: 35px;
+  margin-bottom: 10px;
+  padding: 2.5px;
+  justify-content: space-between;
+
+  &:last-child {
+    margin-bottom: unset;
+  }
+`;
+
+const MemoSandContentContainer = styled.div`
+  width: 100%;
+  flex-direction: column;
+  margin-top: 20px;
+  align-items: flex-start;
+`;
+
+const MemoSandContainer = styled.div`
+  width: max-content;
+  flex-direction: column;
+  margin-top: 20px;
+  align-items: flex-start;
+`;
+
 const DishClickBottomButton = styled.button`
   width: 380px;
   height: 55px;
@@ -292,9 +352,7 @@ const DishClickContainer = styled.div`
   border-radius: 20px;
 `;
 
-const Dish = ({
-  data,
-  modalStatus,
+const StandartRendering = ({
   activeDish,
   updateModalStatus,
   updateBasketList,
@@ -554,7 +612,7 @@ const Dish = ({
       <DishClickContainer
         onClick={(e) => {
           if (showHiddenAdds && !AddsRef.current.contains(e.target)) {
-            AddsButtonRef.current.click();  
+            AddsButtonRef.current.click();
           }
         }}
       >
@@ -617,6 +675,166 @@ const Dish = ({
         </DishClickBottomContainer>
       </DishClickContainer>
     )
+  );
+};
+
+const SandwichRendering = ({
+  activeDish,
+  updateModalStatus,
+  updateBasketList,
+}) => {
+  const [dishOrderCount, setDishOrderCount] = useState(1);
+  const [dishOrderPrice, setDishOrderPrice] = useState(0);
+
+  const [dishOrderDishPrice, setDishOrderDishPrice] = useState(0);
+  const [dishOrderModsPrice, setDishOrderModsPrice] = useState(0);
+  const [dishOrderAddsPrice, setDishOrderAddsPrice] = useState(0);
+
+  const [dishOrderDishActive, setDishOrderDishActive] = useState([]);
+  const [dishOrderModsActive, setDishOrderModsActive] = useState([]);
+  const [dishOrderAddsActive, setDishOrderAddsActive] = useState([]);
+
+  const [dishOrder, setDishOrder] = useState();
+
+  const [dishCheckArray, setDishCheckArray] = useState([]);
+  const [modsCheckArray, setModsCheckArray] = useState([]);
+  const [addsCountArray, setAddsCountArray] = useState([]);
+
+  const [showHiddenAdds, setShowHiddenAdds] = useState(false);
+
+  const AddsButtonRef = useRef(null);
+  const AddsRef = useRef(null);
+
+  const [DishArray, setDishArray] = useState([]);
+  const [ModsArray, setModsArray] = useState([]);
+  const [AddsArray, setAddsArray] = useState([]);
+
+  useEffect(() => {
+    const content = activeDish.content;
+    let tempDishArray = [];
+    content.forEach((el)=>{
+      tempDishArray.push({
+        
+      })
+    })
+    setDishArray(activeDish.content);
+  }, [activeDish]);
+
+  
+
+  useEffect(() => {
+    setDishOrderModsActive([]);
+    setDishOrderModsPrice(0);
+    let tempNewModsArr = [];
+    let tempNewModsPrice = 0;
+    modsCheckArray.forEach((el) => {
+      if (!el.checked) {
+        tempNewModsArr.push(el);
+        tempNewModsPrice = tempNewModsPrice + el.price;
+      }
+    });
+    setDishOrderModsActive([...tempNewModsArr]);
+    setDishOrderModsPrice(tempNewModsPrice);
+  }, [modsCheckArray, setDishOrderModsActive, setDishOrderModsPrice]);
+
+  useEffect(() => {
+    setDishOrderAddsActive([]);
+    setDishOrderAddsPrice(0);
+    let tempNewAddsArr = [];
+    let tempNewAddsPrice = 0;
+    addsCountArray.forEach((el) => {
+      if (el.count > 0) {
+        tempNewAddsArr.push(el);
+        tempNewAddsPrice = tempNewAddsPrice + el.price * el.count;
+      }
+    });
+    setDishOrderAddsActive([...tempNewAddsArr]);
+    setDishOrderAddsPrice(tempNewAddsPrice);
+  }, [addsCountArray, setDishOrderAddsActive, setDishOrderAddsPrice]);
+
+  useEffect(() => {
+    setDishOrderPrice(
+      (activeDish.price + dishOrderModsPrice + dishOrderAddsPrice) *
+        dishOrderCount
+    );
+  }, [
+    activeDish.price,
+    setDishOrderPrice,
+    dishOrderModsPrice,
+    dishOrderAddsPrice,
+    dishOrderCount,
+  ]);
+
+  useEffect(() => {
+    setDishOrder({
+      name: activeDish.name,
+      code: activeDish.code,
+      priceOne: dishOrderPrice / dishOrderCount,
+      price: dishOrderPrice,
+      count: dishOrderCount,
+      mods: dishOrderModsActive,
+      adds: dishOrderAddsActive,
+      rest: activeDish.rest,
+    });
+  }, [
+    activeDish,
+    dishOrderPrice,
+    dishOrderCount,
+    dishOrderModsActive,
+    dishOrderAddsActive,
+  ]);
+
+  useEffect(() => {
+    setModsCheckArray([]);
+    ModsArray.forEach((el) => {
+      setModsCheckArray((arr) => [
+        ...arr,
+        {
+          name: el.name,
+          price: el.price,
+          code: el.code,
+          checked: true,
+        },
+      ]);
+    });
+  }, [ModsArray, setModsCheckArray]);
+
+  useEffect(() => {
+    setAddsCountArray([]);
+    AddsArray.forEach((el) => {
+      setAddsCountArray((arr) => [
+        ...arr,
+        {
+          name: el.name,
+          price: el.price,
+          code: el.code,
+          count: 0,
+        },
+      ]);
+    });
+  }, [AddsArray, setAddsCountArray]);
+
+  return activeDish && <>Hello!</>;
+};
+
+const Dish = ({ activeDish, updateModalStatus, updateBasketList }) => {
+  return (
+    <>
+      {activeDish && activeDish.constructor === false && (
+        <StandartRendering
+          activeDish={activeDish}
+          updateModalStatus={updateModalStatus}
+          updateBasketList={updateBasketList}
+        />
+      )}
+      {activeDish && activeDish.constructor === true && (
+        <SandwichRendering
+          activeDish={activeDish}
+          updateModalStatus={updateModalStatus}
+          updateBasketList={updateBasketList}
+        />
+      )}
+    </>
   );
 };
 

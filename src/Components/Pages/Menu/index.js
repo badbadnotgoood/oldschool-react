@@ -525,6 +525,11 @@ const SectionsContainer = styled.div`
   }
 `;
 
+const SectionNameComponent = ({ name }) => {
+  const [upperName, setUpperName] = useState(name.toUpperCase())
+  return <span>{upperName}</span>;
+};
+
 const Menu = ({ data, requestStatus, updateModalStatus, updateActiveDish }) => {
   const [offset, setOffset] = useState();
   const [activeSection, setActiveSection] = useState(0);
@@ -559,56 +564,53 @@ const Menu = ({ data, requestStatus, updateModalStatus, updateActiveDish }) => {
   }, [CategoriesContainerRef, requestStatus, activeSection]);
 
   useEffect(() => {
-    if (requestStatus) {
-      const sectionsArr = [...SectionsContainerRef.current.children];
-      const categoriesArr = [...CategoriesContainerRef.current.children];
-      const offset =
-        CategoriesContainerRef.current.parentNode.offsetHeight +
-        HeaderContainerRef.current.offsetHeight;
-      const handleScroll = () => {
-        if (!scrollStatus) {
-          sectionsArr.forEach((el, i) => {
-            if (
-              window.pageYOffset >= el.offsetTop - offset * 2 &&
-              window.pageYOffset <
-                el.offsetTop + el.offsetHeight - offset * 2 &&
-              i !== activeSection
-            ) {
-              const sectionText = sectionsArr[i].children[0].innerText;
-              categoriesArr[activeSection].classList.remove(
-                "active-burgers",
-                "active-sandwiches",
-                "active-default"
-              );
-              categoriesArr[i].classList.add(
-                sectionText === "Бургеры"
-                  ? "active-burgers"
-                  : sectionText === "Сэндвичи"
-                  ? "active-sandwiches"
-                  : "active-default"
-              );
-              scrollIntoView(categoriesArr[i], {
-                inline: "center",
-                behavior: "smooth",
-                boundary: CategoriesContainerRef.current,
-              });
-              setActiveSection(i);
-            }
-          });
-        }
-      };
+    const sectionsArr = [...SectionsContainerRef.current.children];
+    const categoriesArr = [...CategoriesContainerRef.current.children];
+    const offset =
+      CategoriesContainerRef.current.parentNode.offsetHeight +
+      HeaderContainerRef.current.offsetHeight;
+    const handleScroll = () => {
+      if (!scrollStatus) {
+        sectionsArr.forEach((el, i) => {
+          if (
+            window.pageYOffset >= el.offsetTop - offset * 2 &&
+            window.pageYOffset < el.offsetTop + el.offsetHeight - offset * 2 &&
+            i !== activeSection
+          ) {
+            const sectionText = sectionsArr[i].children[0].innerText;
+            categoriesArr[activeSection].classList.remove(
+              "active-burgers",
+              "active-sandwiches",
+              "active-default"
+            );
+            categoriesArr[i].classList.add(
+              sectionText === "БУРГЕРЫ"
+                ? "active-burgers"
+                : sectionText === "СЭНДВИЧИ"
+                ? "active-sandwiches"
+                : "active-default"
+            );
+            scrollIntoView(categoriesArr[i], {
+              inline: "center",
+              behavior: "smooth",
+              boundary: CategoriesContainerRef.current,
+            });
+            setActiveSection(i);
+          }
+        });
+      }
+    };
 
-      Events.scrollEvent.register("begin", () => {
-        setScrollStatus(true);
-      });
+    Events.scrollEvent.register("begin", () => {
+      setScrollStatus(true);
+    });
 
-      Events.scrollEvent.register("end", () => {
-        setScrollStatus(false);
-      });
+    Events.scrollEvent.register("end", () => {
+      setScrollStatus(false);
+    });
 
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      return () => window.removeEventListener("scroll", handleScroll);
-    }
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [
     activeSection,
     scrollStatus,
@@ -619,11 +621,7 @@ const Menu = ({ data, requestStatus, updateModalStatus, updateActiveDish }) => {
   ]);
 
   const MemoCategories = useMemo(() => {
-    return !requestStatus ? (
-      <Loader>
-        <PulseLoader color={"#e0e0e0"} size={10} />
-      </Loader>
-    ) : (
+    return (
       data && (
         <Container ref={CategoriesContainerRef} id="container">
           {data.categories.map((el, i) => (
@@ -650,8 +648,9 @@ const Menu = ({ data, requestStatus, updateModalStatus, updateActiveDish }) => {
                   });
                   setActiveSection(i);
                   const sectionText = sectionsArr[i].children[0].innerText;
+                  console.log(sectionText)
                   categoriesArr[i].classList.add(
-                    sectionText === "Бургеры"
+                    sectionText === "БУРГЕРЫ"
                       ? "active-burgers"
                       : sectionText === "Сэндвичи"
                       ? "active-sandwiches"
@@ -688,48 +687,63 @@ const Menu = ({ data, requestStatus, updateModalStatus, updateActiveDish }) => {
   ]);
 
   const MemoSections = useMemo(() => {
-    return !requestStatus ? (
-      <Loader>
-        <PulseLoader color={"#e0e0e0"} />
-      </Loader>
-    ) : (
+    return (
       data &&
-        data.categories.map((el1, i1) => (
-          <Section key={i1} name={"section-" + i1}>
-            <SectionDesk>{el1}</SectionDesk>
-            <ItemsContainer>
-              {data.menu &&
-                data.menu.map(
-                  (el2, i2) =>
-                    el2.categname === el1 && (
-                      <Item
-                        disabled={el2.stop === 0 ? true : false}
-                        key={i2}
-                        onClick={() => {
-                          if (el2.stop !== 0) {
-                            updateModalStatus(4);
-                            updateActiveDish(el2);
-                          }
-                        }}
-                      >
-                        {el2.stop === 0 && (
-                          <DisabledContainer>
-                            <DisabledDish>
-                              В данный момент недоступно
-                            </DisabledDish>
-                          </DisabledContainer>
-                        )}
-                        <ItemImage name={el2.name} rest={el2.rest} />
-                        <ItemDeskContainer>
-                          <ItemDeskName>{el2.name}</ItemDeskName>
-                          <ItemDeskPrice>{el2.price}₽</ItemDeskPrice>
-                        </ItemDeskContainer>
-                      </Item>
-                    )
-                )}
-            </ItemsContainer>
-          </Section>
-        ))
+      data.categories.map((el1, i1) => (
+        <Section key={i1} name={"section-" + i1}>
+          <SectionDesk>
+            <SectionNameComponent name={el1} />
+          </SectionDesk>
+          <ItemsContainer>
+            {data.menu &&
+              data.menu.map(
+                (el2, i2) =>
+                  el2.categname === el1 &&
+                  (el2.constructor !== true ? (
+                    <Item
+                      disabled={el2.stop === 0 ? true : false}
+                      key={i2}
+                      onClick={() => {
+                        if (el2.stop !== 0) {
+                          console.log(el2);
+                          updateModalStatus(4);
+                          updateActiveDish(el2);
+                        }
+                      }}
+                    >
+                      {el2.stop === 0 && (
+                        <DisabledContainer>
+                          <DisabledDish>
+                            В данный момент недоступно
+                          </DisabledDish>
+                        </DisabledContainer>
+                      )}
+                      <ItemImage name={el2.name} rest={el2.rest} />
+                      <ItemDeskContainer>
+                        <ItemDeskName>{el2.name}</ItemDeskName>
+                        <ItemDeskPrice>{el2.price}₽</ItemDeskPrice>
+                      </ItemDeskContainer>
+                    </Item>
+                  ) : (
+                    <Item
+                      key={i2}
+                      onClick={() => {
+                        console.log(el2);
+                        updateModalStatus(4);
+                        updateActiveDish(el2);
+                      }}
+                    >
+                      <ItemImage name={el2.name} rest={el2.rest} />
+                      <ItemDeskContainer>
+                        <ItemDeskName>{el2.name}</ItemDeskName>
+                        <ItemDeskPrice>{el2.price}₽</ItemDeskPrice>
+                      </ItemDeskContainer>
+                    </Item>
+                  ))
+              )}
+          </ItemsContainer>
+        </Section>
+      ))
     );
   }, [data, requestStatus, updateActiveDish, updateModalStatus]);
 

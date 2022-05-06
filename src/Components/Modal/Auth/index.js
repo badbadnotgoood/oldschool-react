@@ -91,10 +91,8 @@ const Logo = styled.div`
   background-image: url(${(props) => props.source});
   background-position: center;
   background-repeat: no-repeat;
-  @media ${device.screenMaxto1280} {
-    height: 55px;
-    width: 90px;
-  }
+  height: 55px;
+  width: 90px;
 `;
 
 const LogoContainer = styled.div`

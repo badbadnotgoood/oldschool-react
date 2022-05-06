@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { Link, Route, Routes } from "react-router-dom";
 import styled from "styled-components";
+import Cookies from "js-cookie";
 
 import {
   getBasketList,
@@ -55,28 +56,35 @@ const App = ({
   updateUserData,
   getBasketList,
   updateModalStatus,
-  updateRequestStatus,
 }) => {
   const ModalContainerRef = useRef();
+  const restModalStatus = Cookies.get("restModalStatus");
 
   useEffect(() => {
-    async function fetch() {
-      await updateRequestStatus(false);
-      await updateData(activeRest);
-      await updateRequestStatus(true);
-      await getBasketList();
-      await updateUserData();
-      await updateModalStatus(0);
+    updateData(activeRest);
+  }, [activeRest]);
+
+  useEffect(() => {
+    getBasketList();
+  }, [updateData]);
+
+  useEffect(() => {
+    updateUserData();
+  }, [updateData]);
+
+  useEffect(() => {
+    console.log(restModalStatus);
+    if (restModalStatus !== undefined) {
+      if (restModalStatus === true) {
+        updateModalStatus(0);
+      } else {
+        updateModalStatus(1);
+      }
+    } else {
+      updateModalStatus(1);
     }
-    fetch();
-  }, [
-    activeRest,
-    updateData,
-    updateUserData,
-    getBasketList,
-    updateRequestStatus,
-    updateModalStatus,
-  ]);
+    Cookies.set("restModalStatus", "true", { expires: 1 });
+  }, [restModalStatus]);
 
   const ModalComponent = (
     <ModalContainer

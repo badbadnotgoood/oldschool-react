@@ -10,7 +10,7 @@ import "./index.css";
 import App from "./Components/App";
 
 ReactDOM.render(
-  <BrowserRouter basename="/workspace/">
+  <BrowserRouter basename="/">
     <Provider store={store}>
       <PersistGate loading={null} persistor={Persistor}>
         <App />

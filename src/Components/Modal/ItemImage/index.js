@@ -65,7 +65,7 @@ const ItemImage = (props) => {
     const src = require("../../../Media/images/dish/" + name + ".png");
     if (rest === 0) {
       return (
-        <ItemImg style={{ backgroundSize: "110%", ...style }} source={src} />
+        <ItemImg style={{ backgroundSize: "160%", ...style }} source={src} />
       );
     }
     if (rest === 1) {
@@ -74,7 +74,7 @@ const ItemImage = (props) => {
       );
     }
   } catch {
-    if (defhotarr.some((el) => name.includes(el))) {
+    if (defhotarr.some((el) => name.includes(el) && rest !== 1 )) {
       return (
         <ItemImg 
           style={{ backgroundSize: "120%", ...defstyle }}
@@ -85,7 +85,7 @@ const ItemImage = (props) => {
       if (rest === 0) {
         return (
           <ItemImg
-            style={{ backgroundSize: "50%", ...defstyle }}
+            style={{ backgroundSize: "50%", backgroundColor: "#fafafa", ...defstyle }}
             source={defburg}
           />
         );
@@ -93,7 +93,7 @@ const ItemImage = (props) => {
       if (rest === 1) {
         return (
           <ItemImg
-            style={{ backgroundSize: "50%", ...defstyle }}
+            style={{ backgroundSize: "50%", backgroundColor: "#fafafa", ...defstyle }}
             source={defsand}
           />
         );
