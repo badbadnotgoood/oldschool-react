@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
+import Cookies from "js-cookie";
 
 import delivery1 from "../../../Media/images/delivery1.svg";
 import delivery2 from "../../../Media/images/delivery2.svg";
@@ -9,6 +10,7 @@ import {
   clearBasketList,
   updateDeliveryStatus,
   updateModalStatus,
+  updateActiveRestAddress,
 } from "../../../Store/Actions";
 import Attention from "../Attention";
 
@@ -73,10 +75,11 @@ const DeliveryContainer = styled.div`
 
 const Delivery = ({
   clearBasketList,
+  updateActiveRestAddress,
   updateDeliveryStatus,
   updateModalStatus,
   updateActiveRest,
-  activeRest,
+  restList,
   basketList,
   deliveryStatus,
 }) => {
@@ -90,16 +93,16 @@ const Delivery = ({
         <Button
           source={delivery1}
           onClick={() => {
-            if (deliveryStatus === 1) {
+            if (deliveryStatus === 0) {
               updateModalStatus(2);
             } else {
               const basketCount = basketList[0].length + basketList[1].length;
               if (basketCount > 0) {
+                setDelivery(0);
                 setShow(true);
-                setDelivery(1);
               } else {
                 setShow(false);
-                updateDeliveryStatus(1);
+                updateDeliveryStatus(0);
                 updateModalStatus(2);
               }
             }
@@ -110,17 +113,21 @@ const Delivery = ({
         <Button
           source={delivery2}
           onClick={() => {
-            if (deliveryStatus === 2) {
-              updateActiveRest(1)
+            if (deliveryStatus === 1) {
+              updateActiveRest(1);
+              updateActiveRestAddress(restList[0]["Address"]);
               updateModalStatus(0);
             } else {
               const basketCount = basketList[0].length + basketList[1].length;
               if (basketCount > 0) {
+                setDelivery(1);
                 setShow(true);
-                setDelivery(2);
               } else {
                 setShow(false);
-                updateDeliveryStatus(2);
+                updateActiveRest(1);
+                updateDeliveryStatus(1);
+                updateActiveRestAddress(restList[0]["Address"]);
+                Cookies.set("restModalStatus", "true", { expires: 1 });
                 updateModalStatus(0);
               }
             }
@@ -145,12 +152,14 @@ const Delivery = ({
             continueFunc={() => {
               setShow(false);
               clearBasketList();
-              if (delivery === 1) {
+              if (delivery === 0) {
                 updateDeliveryStatus(delivery);
-                updateModalStatus(0);
+                updateModalStatus(2);
               } else {
                 updateActiveRest(1);
                 updateDeliveryStatus(delivery);
+                updateActiveRestAddress(restList[0]["Address"]);
+                Cookies.set("restModalStatus", "true", { expires: 1 });
                 updateModalStatus(0);
               }
             }}
@@ -162,13 +171,14 @@ const Delivery = ({
 };
 
 const mapStateToProps = (state) => ({
-  activeRest: state.activeRest,
   basketList: state.basketList,
   deliveryStatus: state.deliveryStatus,
+  restList: state.data.restList,
 });
 
 const mapDispatchToProps = {
   clearBasketList,
+  updateActiveRestAddress,
   updateDeliveryStatus,
   updateModalStatus,
   updateActiveRest,

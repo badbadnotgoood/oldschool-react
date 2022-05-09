@@ -1,10 +1,14 @@
 import axios from "axios";
-import React, {useRef} from "react";
+import React, { useRef } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-import { updateUserDataView, updateModalStatus, updateUserData } from "../../../Store/Actions";
+import {
+  updateUserDataView,
+  updateModalStatus,
+  updateUserData,
+} from "../../../Store/Actions";
 
 const TempLink = styled(Link)`
   opacity: 0;
@@ -31,13 +35,10 @@ const ProfileContainer = styled.div`
   flex-direction: column;
   background-color: white;
   border-radius: 15px;
-  & button:hover, & a:hover {
+  & > *:hover {
     color: #c91e25;
   }
 
-  & button:last-child, & a:last-child {
-    margin-bottom: unset;
-  }
   position: absolute;
   top: 90px;
   right: 160px;
@@ -68,14 +69,22 @@ const Profile = ({ updateUserDataView, updateModalStatus, updateUserData }) => {
       >
         Мои адреса
       </ProfileButton>
-      <ProfileLink to="/history">История заказов</ProfileLink>
+      <ProfileLink
+        to="/history"
+        onClick={() => {
+          updateModalStatus(0);
+        }}
+      >
+        История заказов
+      </ProfileLink>
       <ProfileButton
+      style={{marginBottom: "unset"}}
         onClick={() => {
           axios.get("../api/0.1.0/deleteUserData").then((response) => {
             if (response.data.status === 1) {
               updateUserData();
               tempLinkRef.current.click();
-              updateModalStatus(0)
+              updateModalStatus(0);
             }
           });
         }}

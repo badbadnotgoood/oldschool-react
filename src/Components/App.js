@@ -73,17 +73,12 @@ const App = ({
   }, [updateData]);
 
   useEffect(() => {
-    console.log(restModalStatus);
-    if (restModalStatus !== undefined) {
-      if (restModalStatus === true) {
-        updateModalStatus(0);
-      } else {
-        updateModalStatus(1);
-      }
+    if (restModalStatus) {
+      updateModalStatus(0);
+      Cookies.set("restModalStatus", "true", { expires: 1 });
     } else {
       updateModalStatus(1);
     }
-    Cookies.set("restModalStatus", "true", { expires: 1 });
   }, [restModalStatus]);
 
   const ModalComponent = (

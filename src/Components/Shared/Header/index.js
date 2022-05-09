@@ -438,7 +438,7 @@ const Header = ({
     >
       <ChooseRestaurantContainer>
         <RestaurantText>
-          {deliveryStatus === 1 ? "Навынос," : "Доставка,"}
+          {deliveryStatus === 0 ? "Навынос," : "Доставка,"}
         </RestaurantText>
         <HeaderRestContainer>
           <ChooseRestaurantText>
@@ -513,11 +513,11 @@ const Header = ({
       )}
     </ButtonContainer>
   );
-
+  console.log(document.location.pathname)
   return (
     <HeaderContainer ref={HeaderContainerRef}>
       <TopHeaderContainer>
-        {NavButtonComponent}
+        {document.location.pathname === "/" && NavButtonComponent}
         <ImageContainer>
           <Image
             source={LogoBurgRound}

@@ -542,7 +542,7 @@ const Basket = ({
               if (userData.status === 0 || userData.status === -1) {
                 updateModalStatus(3);
               } else {
-                if (deliveryStatus === 1) {
+                if (deliveryStatus === 0) {
                   tempLinkRef.current.click();
                 } else {
                   updateModalStatus(8);

@@ -55,7 +55,7 @@ def set_rest(id):
 def ping_rest(port, token):
     url = "http://78.110.158.255:" + str(port) + "/api/v2/ext/ping"
     headers = {"Token": token}
-    r = requests.get(url, headers=headers, timeout=1)
+    r = requests.get(url, headers=headers, timeout=5)
     r_json = r.json()
     data = r_json["data"]
     return json.dumps(data)
@@ -64,7 +64,7 @@ def ping_rest(port, token):
 def get_data_rest(port, token):
     url = "http://78.110.158.255:" + str(port) + "/api/v2/ext/getmenu"
     headers = {"Token": token}
-    r = requests.get(url, headers=headers, timeout=1)
+    r = requests.get(url, headers=headers, timeout=5)
     r_json = r.json()
     data = r_json["data"]
     return data
@@ -153,7 +153,12 @@ def check_rests():
     return data
 
 
-def add_to_order_array(token, order_id, delivery, burg_len, sand_len, deliverat, rest_id):
+def add_to_order_array(token, order_id, delivery, burg_len, sand_len, deliverat, rest_id, content):
+    temp_price = 0
+    for el in content["0"]:
+        temp_price = temp_price + el["price"]
+    for el in content["1"]:
+        temp_price = temp_price + el["price"]
     token = session["UserToken"]
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -173,6 +178,8 @@ def add_to_order_array(token, order_id, delivery, burg_len, sand_len, deliverat,
         "status": 00,
         "type": delivery,
         "deliverat": deliverat,
+        "content": content,
+        "price": temp_price,
         "0": burg_len,
         "1": sand_len,
     })
@@ -184,35 +191,26 @@ def add_to_order_array(token, order_id, delivery, burg_len, sand_len, deliverat,
     cursor.close()
 
 
-@application.route("/test", methods=["GET", "POST"])
-def test():
-    url = "http://78.110.158.255:" + str("11011") + "/api/v2/ext/getmenu"
-    headers = {"Token": "AXF0Qs7T5e0EjPjGg77g"}
-    r = requests.get(url, headers=headers, timeout=2)
+@application.route("/api/0.1.0/check_order", methods=["POST"])
+def check_order():
+    order_id = request.get_json()["order_id"]
+    rest_id = request.get_json()["rest_id"]
+    port, token = set_rest(rest_id)
+    url = "http://78.110.158.255:" + \
+        str(port) + "/api/v2/ext/orderstate?order_id=" + str(order_id)
+    headers = {"Token": token}
+    r = requests.get(url, headers=headers, timeout=5)
     r_json = r.json()
-    data = r_json["data"]
-    return json.dumps(data)
+    return json.dumps(r_json)
 
 
 @application.route('/api/0.1.0/getMenu', methods=['GET', 'POST'])
 def get_menu():
     name_arr = []
     modsaddsarr = []
-
     rest_id = set_id()
-    if not "RestId" in session:
-        session["RestId"] = rest_id
-    else:
-        if rest_id != session["RestId"]:
-            basket_list_temp = {"0": [], "1": []}
-            session["RestId"] = rest_id
-            session.modified = True
-            session["basketList"] = basket_list_temp
-            session.modified = True
-
     port, token = set_rest(rest_id)
     rest_list = check_rests()
-
     if rest_list[rest_id - 1]["RestStatus"]:
         try:
             data_rest = get_data_rest(port, token)
@@ -558,17 +556,21 @@ def get_user_data():
         arr = []
         for el in cursor:
             arr.append(el)
-        print(len(arr))
+        print(arr)
 
         if len(arr) == 1:
             address_array = []
+            order_array = []
             if arr[0][7] != None:
                 address_array = json.loads(arr[0][7])
+            if arr[0][8] != None:
+                order_array = json.loads(arr[0][8])
             return {
                 "Phone": arr[0][1],
                 "Name": arr[0][5],
                 "Email": arr[0][6],
                 "AddressArray": address_array,
+                "OrderArray": order_array,
                 "status": 1
             }
         else:
@@ -742,7 +744,7 @@ def validate_basket():
     url = "http://78.110.158.255:" + str(port) + "/api/v2/ext/validate"
     headers = {"Token": token}
     r = requests.post(url, headers=headers,
-                      data=json.dumps(request_data), timeout=1)
+                      data=json.dumps(request_data), timeout=5)
     r_json = r.json()
     data = r_json
     return json.dumps(data)
@@ -916,7 +918,7 @@ def post_order():
                     str(port) + "/api/v2/ext/postorder"
                 headers = {"Token": token}
                 r = requests.post(url, headers=headers,
-                                  data=json.dumps(request_data), timeout=1)
+                                  data=json.dumps(request_data), timeout=5)
                 r_json = r.json()
                 data = r_json
                 if data["result"]:
@@ -924,7 +926,7 @@ def post_order():
                     session["basketList"] = basket_list_temp
                     session.modified = True
                     add_to_order_array(session["UserToken"], data["order_id"], delivery, len(
-                        burg_list), len(sand_list), deliverat, rest_id)
+                        burg_list), len(sand_list), deliverat, rest_id, basket_list)
                     return json.dumps({"status": 1, "order_id": data["order_id"]})
                 else:
                     return json.dumps({"data": data, "request": request_data})
@@ -949,7 +951,7 @@ def clear_basket():
 #             url = "http://78.110.158.255:" + \
 #                 str(port) + "/api/v2/ext/orderstate?order_id=" + el["order_id"]
 #             headers = {"Token": token}
-#             r = requests.get(url, headers=headers, timeout=1)
+#             r = requests.get(url, headers=headers, timeout=5)
 #             r_json = r.json()
 #             data = r_json
 #             if data["result"]:

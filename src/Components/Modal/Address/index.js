@@ -197,6 +197,7 @@ function Address({
                 key={i}
                 onClick={() => {
                   setActiveAddress(i);
+                  console.log(userData.AddressArray[i])
                 }}
               >
                 <AddressItemIndicator>
@@ -236,6 +237,7 @@ function Address({
                 value={comment}
                 onChange={(e) => {
                   setComment(e.target.value);
+                  console.log(address.value, comment)
                 }}
               />
             </AddressAddNewContainer>
@@ -245,7 +247,6 @@ function Address({
               onClick={() => {
                 if (activeAddress !== "newAddress") {
                   updateActiveDeliveryAddress({
-                    id: activeAddress,
                     Address: userData.AddressArray[activeAddress].Address,
                     Comment: userData.AddressArray[activeAddress].Comment,
                   });

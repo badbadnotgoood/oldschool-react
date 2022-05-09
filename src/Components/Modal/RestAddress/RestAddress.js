@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
+import Cookies from "js-cookie"
 
 import LogoBurgRound from "../../../Media/images/LogoBurgRound.svg";
 import LogoSandRound from "../../../Media/images/LogoSandRound.svg";
@@ -179,18 +180,21 @@ const RestAddress = ({
               status={el["RestStatus"]}
               onClick={() => {
                 if (activeRest === i + 1) {
+                  updateActiveRestAddress(el["Address"]);
+                  Cookies.set("restModalStatus", "true", { expires: 1 });
                   updateModalStatus(0);
                 } else {
                   const basketCount =
                     basketList[0].length + basketList[1].length;
                   if (basketCount > 0) {
+                    setAddress(el["Address"]);
+                    setRest(i + 1);
                     setShow(true);
-                    setAddress(el["Address"])
-                    setRest(i + 1)
                   } else {
                     setShow(false);
                     updateActiveRest(i + 1);
                     updateActiveRestAddress(el["Address"]);
+                    Cookies.set("restModalStatus", "true", { expires: 1 });
                     updateModalStatus(0);
                   }
                 }
@@ -263,6 +267,7 @@ const RestAddress = ({
               updateActiveRest(rest);
               updateActiveRestAddress(address);
               clearBasketList();
+              Cookies.set("restModalStatus", "true", { expires: 1 });
               updateModalStatus(0);
             }}
           />
@@ -279,6 +284,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
+  updateActiveRestAddress,
   updateModalStatus,
   updateActiveRest,
   clearBasketList,

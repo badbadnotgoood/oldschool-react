@@ -320,6 +320,7 @@ const Order = ({
   userData,
   deliveryStatus,
   activeDeliveryAddress,
+  activeRestAddress,
   activeRest,
   updateUserData,
   getBasketList,
@@ -398,11 +399,9 @@ const Order = ({
           <OrderUserDataName>Адрес</OrderUserDataName>
           <AddressContainer>
             <OrderUserData>
-              {deliveryStatus === 0
-                ? address.Address
-                : restList[activeRest].Address}
+              {deliveryStatus === 0 ? activeRestAddress : address.Address}
             </OrderUserData>
-            <AddressComment>{address.Comment}</AddressComment>
+            <AddressComment>{deliveryStatus === 0 ? "" : address.Comment}</AddressComment>
           </AddressContainer>
         </OrderUserDataRow>
       </OrderUserDataContainer>
@@ -453,6 +452,7 @@ const Order = ({
             </OrderLink>
             <OrderAcceptButton
               onClick={() => {
+                console.log(deliveryStatus);
                 if (checked) {
                   axios
                     .post("../api/0.1.0/postOrder", {
@@ -460,14 +460,8 @@ const Order = ({
                       Delivery: deliveryStatus,
                       Name: userData.Name,
                       Phone: userData.Phone,
-                      Address:
-                        deliveryStatus === 0
-                          ? ""
-                          : activeDeliveryAddress.Address,
-                      Comment:
-                        deliveryStatus === 0
-                          ? ""
-                          : activeDeliveryAddress.Comment,
+                      Address: deliveryStatus === 0 ? activeRestAddress : address.Address,
+                      Comment: deliveryStatus === 0 ? "" : address.Comment,
                     })
                     .then((response) => {
                       if (response.data.status) {
@@ -540,6 +534,7 @@ const mapStateToProps = (state) => ({
   userData: state.userData,
   deliveryStatus: state.deliveryStatus,
   activeDeliveryAddress: state.activeDeliveryAddress,
+  activeRestAddress: state.activeRestAddress,
   activeRest: state.activeRest,
   basketList: state.basketList,
 });
