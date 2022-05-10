@@ -7,6 +7,82 @@ import Footer from "../../Shared/Footer";
 import Header from "../../Shared/Header";
 import axios from "axios";
 
+const OrderDishPrice = styled.p`
+  font-size: 16px;
+  line-height: 20px;
+  color: #bcbcbc;
+`;
+
+const OrderDishComment = styled.span``;
+
+const OrderContentContainer = styled.div`
+  justify-content: space-between;
+`;
+
+const OrderTitleContainer = styled.div`
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const OrderRightContainer = styled.div`
+  width: 440px;
+  padding: 22px 22px 24px;
+  background-color: #f9f9f9;
+  border-radius: 21px;
+  flex-direction: column;
+  margin-left: 30px;
+
+  & > ${OrderTitleContainer} {
+    margin-bottom: 10px;
+  }
+
+  & > ${OrderTitleContainer}:last-child {
+    margin-bottom: unset;
+  }
+`;
+
+const OrderContent = styled.p`
+  font-size: 14px;
+  line-height: 15px;
+  color: #bcbcbc;
+`;
+
+const OrderTitle = styled.p`
+  font-family: "Cera Round Pro Medium", sans-serif;
+  font-size: 15px;
+  line-height: 15px;
+`;
+
+const OrderBlock = styled.div`
+  flex-direction: column;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+  width: 100%;
+  align-items: flex-start;
+
+  & > *:first-child {
+    margin-bottom: 10px;
+  }
+
+  &:last-child {
+    margin-bottom: unset;
+  }
+`;
+
+const OrderLeftContainer = styled.div`
+  flex-direction: column;
+  width: 330px;
+`;
+
+const OrderBottomContainer = styled.div`
+  align-items: flex-start;
+`;
+
+const OrderComponent = styled.div`
+  flex-direction: column;
+`;
+
 const OrderStatusRestAddress = styled.p`
   font-size: 21px;
   line-height: 25px;
@@ -115,6 +191,15 @@ const HistoryContainer = styled.div`
 
   & > div {
     width: 100%;
+  }
+`;
+
+const OrderAddressButton = styled.button`
+  margin-left: 10px;
+  margin-right: 10px;
+
+  &:hover {
+    color: #c91e25;
   }
 `;
 
@@ -259,6 +344,11 @@ const OrderStatusComponent = ({ data }) => {
 const History = ({ userData, restList }) => {
   const [accessStatus, setAccessStatus] = useState(false);
   const [history, setHistory] = useState([]);
+  const [activeOrder, setActiveOrder] = useState({
+    click: false,
+  });
+
+  console.log(activeOrder.content);
 
   useEffect(() => {
     axios
@@ -286,42 +376,158 @@ const History = ({ userData, restList }) => {
         <OrderAddressContainer>
           <OrderAddressLink to="/">Меню</OrderAddressLink>
           {"/"}
-          <OrderAddressLink to="/history">История заказов</OrderAddressLink>
+          <OrderAddressButton
+            onClick={() => {
+              setActiveOrder({ click: false });
+            }}
+          >
+            История заказов
+          </OrderAddressButton>
+          {activeOrder.click && (
+            <>
+              /<OrderAddressButton>{activeOrder.order_id}</OrderAddressButton>
+            </>
+          )}
         </OrderAddressContainer>
-        <OrderAddressName>История заказов</OrderAddressName>
-        <HistoryContainer>
-          {history.length > 0 &&
-            history.map((el, i) => (
-              <OrderContainer key={i}>
-                <OrderInfoContainer>
-                  <OrderNumberPriceContainer>
-                    <OrderNumber
-                      style={
-                        el["0"] > 0
-                          ? { color: "#C91E25" }
-                          : { color: "#199869" }
-                      }
+        {activeOrder.click ? (
+          <OrderComponent>
+            <OrderAddressName>
+              {"Заказ " + activeOrder.order_id}
+            </OrderAddressName>
+            <OrderBottomContainer>
+              <OrderLeftContainer>
+                <OrderBlock>
+                  <OrderTitle>
+                    {"Заказ " + activeOrder.order_id_short}
+                  </OrderTitle>
+                  <OrderContentContainer>
+                    <OrderContent>{"Статус заказа: "}</OrderContent>
+                    <OrderContent
+                      style={{
+                        color: "#199869",
+                        textDecorationLine: "underline",
+                        marginLeft: "5px",
+                      }}
                     >
-                      {"С-" + el.order_id}
-                    </OrderNumber>
-                    <OrderPrice>{el.price + "₽"}</OrderPrice>
-                  </OrderNumberPriceContainer>
-                  <OrderDeliverat>{el.deliverat}</OrderDeliverat>
-                </OrderInfoContainer>
-                <OrderStatusComponent
-                  data={{
-                    burg: el["0"],
-                    sand: el["1"],
-                    type: el["type"],
-                    status: el["status"],
-                    rest_id: el["rest_id"],
-                    order_id: el["order_id"],
-                    restList: restList,
-                  }}
-                />
-              </OrderContainer>
-            ))}
-        </HistoryContainer>
+                      {activeOrder.status}
+                    </OrderContent>
+                  </OrderContentContainer>
+                </OrderBlock>
+                <OrderBlock>
+                  <OrderTitle>{activeOrder.rests}</OrderTitle>
+                  <OrderContent>{activeOrder.deliverat}</OrderContent>
+                </OrderBlock>
+                <OrderBlock>
+                  <OrderTitle>Адрес ресторана:</OrderTitle>
+                  <OrderContent>{activeOrder.address}</OrderContent>
+                </OrderBlock>
+                <OrderBlock>
+                  <OrderTitle>Сервировка:</OrderTitle>
+                  <OrderContent>{activeOrder.serving}</OrderContent>
+                </OrderBlock>
+              </OrderLeftContainer>
+              <OrderRightContainer>
+                {activeOrder.content.content["0"].length > 0 &&
+                  activeOrder.content.content["0"].map((el, i) => (
+                    <OrderBlock key={i}>
+                      <OrderTitleContainer>
+                        <OrderTitle>{el.count + " x " + el.name}</OrderTitle>
+                        <OrderDishPrice>{el.price + "₽"}</OrderDishPrice>
+                      </OrderTitleContainer>
+                      <OrderContentContainer>
+                        {el.adds.map((el2, i) => (
+                          <OrderContent key={i}>
+                            {el2.name}
+                            {el.adds.length > 1 && ", "}
+                          </OrderContent>
+                        ))}
+                        {el.mods.map((el2, i) => (
+                          <OrderContent key={i}>
+                            {el2.name}
+                            {el.mods.length > 1 && ", "}
+                          </OrderContent>
+                        ))}
+                      </OrderContentContainer>
+                    </OrderBlock>
+                  ))}
+                <OrderTitleContainer>
+                  <OrderContent>Стоимость заказа</OrderContent>
+                  <OrderContent>{activeOrder.price + "₽"}</OrderContent>
+                </OrderTitleContainer>
+                <OrderTitleContainer>
+                  <OrderContent>Доставка</OrderContent>
+                  <OrderContent>БЕСПЛАТНО</OrderContent>
+                </OrderTitleContainer>
+                <OrderTitleContainer>
+                  <OrderTitle>Итого:</OrderTitle>
+                  <OrderTitle>{activeOrder.price + "₽"}</OrderTitle>
+                </OrderTitleContainer>
+              </OrderRightContainer>
+            </OrderBottomContainer>
+          </OrderComponent>
+        ) : (
+          <>
+            <OrderAddressName>История заказов</OrderAddressName>
+            <HistoryContainer>
+              {history.length > 0 &&
+                history.map((el, i) => (
+                  <OrderContainer
+                    key={i}
+                    onClick={() => {
+                      setActiveOrder({
+                        status:
+                          el["status"] === 0
+                            ? "Создан"
+                            : el["status"] === 1
+                            ? "Готовится"
+                            : el["type"] === 0
+                            ? "Выдан"
+                            : "Отправлено",
+                        rests:
+                          el["0"] > 0 ? "Oldschool burgers" : "Sandwich Street",
+                        deliverat: el.deliverat,
+                        order_id: "С-" + el.order_id + ", " + el.deliverat,
+                        order_id_short: "C-" + el.order_id,
+                        serving:
+                          el["type"] === 0 ? "Заберу с собой" : "Доставка",
+                        address: restList[el["rest_id"] - 1]["Address"],
+                        content: el,
+                        price: el.price,
+                        click: true,
+                      });
+                    }}
+                  >
+                    <OrderInfoContainer>
+                      <OrderNumberPriceContainer>
+                        <OrderNumber
+                          style={
+                            el["0"] > 0
+                              ? { color: "#C91E25" }
+                              : { color: "#199869" }
+                          }
+                        >
+                          {"С-" + el.order_id}
+                        </OrderNumber>
+                        <OrderPrice>{el.price + "₽"}</OrderPrice>
+                      </OrderNumberPriceContainer>
+                      <OrderDeliverat>{el.deliverat}</OrderDeliverat>
+                    </OrderInfoContainer>
+                    <OrderStatusComponent
+                      data={{
+                        burg: el["0"],
+                        sand: el["1"],
+                        type: el["type"],
+                        status: el["status"],
+                        rest_id: el["rest_id"],
+                        order_id: el["order_id"],
+                        restList: restList,
+                      }}
+                    />
+                  </OrderContainer>
+                ))}
+            </HistoryContainer>
+          </>
+        )}
         <Footer />
       </>
     )

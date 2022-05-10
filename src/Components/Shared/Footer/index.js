@@ -444,7 +444,7 @@ const Footer = () => {
       </MediaContainer>
       <CopyrightContainer>
         <CopyrightText>
-          © 2018–{new Date().getFullYear()} ООО «Олдскул групп»
+          © 2018–{new Date().getFullYear() + " "} ООО «Олдскул групп»
         </CopyrightText>
       </CopyrightContainer>
     </FooterContainer>

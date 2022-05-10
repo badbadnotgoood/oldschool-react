@@ -56,11 +56,13 @@ const App = ({
   updateUserData,
   getBasketList,
   updateModalStatus,
+  updateRequestStatus
 }) => {
   const ModalContainerRef = useRef();
   const restModalStatus = Cookies.get("restModalStatus");
 
   useEffect(() => {
+    updateRequestStatus(false);
     updateData(activeRest);
   }, [activeRest]);
 

@@ -526,7 +526,7 @@ const SectionsContainer = styled.div`
 `;
 
 const SectionNameComponent = ({ name }) => {
-  const [upperName, setUpperName] = useState(name.toUpperCase())
+  const [upperName, setUpperName] = useState(name.toUpperCase());
   return <span>{upperName}</span>;
 };
 
@@ -624,56 +624,62 @@ const Menu = ({ data, requestStatus, updateModalStatus, updateActiveDish }) => {
     return (
       data && (
         <Container ref={CategoriesContainerRef} id="container">
-          {data.categories.map((el, i) => (
-            <Category
-              key={i}
-              theme={el === "Бургеры" ? "1" : el === "Сэндвичи" ? "2" : "0"}
-              onClick={() => {
-                if (!scrollStatus) {
-                  const sectionsArr = [
-                    ...SectionsContainerRef.current.children,
-                  ];
-                  const categoriesArr = [
-                    ...CategoriesContainerRef.current.children,
-                  ];
-                  const offsetFull =
-                    CategoriesContainerRef.current.parentNode.offsetHeight +
-                    offset;
-                  categoriesArr.forEach((el) => {
-                    el.classList.remove(
-                      "active-burgers",
-                      "active-sandwiches",
-                      "active-default"
+          {requestStatus ? (
+            data.categories.map((el, i) => (
+              <Category
+                key={i}
+                theme={el === "Бургеры" ? "1" : el === "Сэндвичи" ? "2" : "0"}
+                onClick={() => {
+                  if (!scrollStatus) {
+                    const sectionsArr = [
+                      ...SectionsContainerRef.current.children,
+                    ];
+                    const categoriesArr = [
+                      ...CategoriesContainerRef.current.children,
+                    ];
+                    const offsetFull =
+                      CategoriesContainerRef.current.parentNode.offsetHeight +
+                      offset;
+                    categoriesArr.forEach((el) => {
+                      el.classList.remove(
+                        "active-burgers",
+                        "active-sandwiches",
+                        "active-default"
+                      );
+                    });
+                    setActiveSection(i);
+                    const sectionText = sectionsArr[i].children[0].innerText;
+                    console.log(sectionText);
+                    categoriesArr[i].classList.add(
+                      sectionText === "БУРГЕРЫ"
+                        ? "active-burgers"
+                        : sectionText === "СЭНДВИЧИ"
+                        ? "active-sandwiches"
+                        : "active-default"
                     );
-                  });
-                  setActiveSection(i);
-                  const sectionText = sectionsArr[i].children[0].innerText;
-                  console.log(sectionText)
-                  categoriesArr[i].classList.add(
-                    sectionText === "БУРГЕРЫ"
-                      ? "active-burgers"
-                      : sectionText === "Сэндвичи"
-                      ? "active-sandwiches"
-                      : "active-default"
-                  );
-                  scrollIntoView(categoriesArr[i], {
-                    inline: "center",
-                    behavior: "smooth",
-                    boundary: CategoriesContainerRef.current,
-                  });
-                  scroller.scrollTo("section-" + i, {
-                    duration: 800,
-                    delay: 0,
-                    smooth: "easeInOutQuart",
-                    ignoreCancelEvents: true,
-                    offset: -offsetFull,
-                  });
-                }
-              }}
-            >
-              {el}
+                    scrollIntoView(categoriesArr[i], {
+                      inline: "center",
+                      behavior: "smooth",
+                      boundary: CategoriesContainerRef.current,
+                    });
+                    scroller.scrollTo("section-" + i, {
+                      duration: 800,
+                      delay: 0,
+                      smooth: "easeInOutQuart",
+                      ignoreCancelEvents: true,
+                      offset: -offsetFull,
+                    });
+                  }
+                }}
+              >
+                {el}
+              </Category>
+            ))
+          ) : (
+            <Category style={{ width: "100%", justifyContent: "center" }}>
+              <PulseLoader color="#bcbcbc" />
             </Category>
-          ))}
+          )}
         </Container>
       )
     );
@@ -687,63 +693,70 @@ const Menu = ({ data, requestStatus, updateModalStatus, updateActiveDish }) => {
   ]);
 
   const MemoSections = useMemo(() => {
-    return (
+    return requestStatus ? (
       data &&
-      data.categories.map((el1, i1) => (
-        <Section key={i1} name={"section-" + i1}>
-          <SectionDesk>
-            <SectionNameComponent name={el1} />
-          </SectionDesk>
-          <ItemsContainer>
-            {data.menu &&
-              data.menu.map(
-                (el2, i2) =>
-                  el2.categname === el1 &&
-                  (el2.constructor !== true ? (
-                    <Item
-                      disabled={el2.stop === 0 ? true : false}
-                      key={i2}
-                      onClick={() => {
-                        if (el2.stop !== 0) {
+        data.categories.map((el1, i1) => (
+          <Section key={i1} name={"section-" + i1}>
+            <SectionDesk>
+              <SectionNameComponent name={el1} />
+            </SectionDesk>
+            <ItemsContainer>
+              {data.menu &&
+                data.menu.map(
+                  (el2, i2) =>
+                    el2.categname === el1 &&
+                    (el2.constructor !== true ? (
+                      <Item
+                        disabled={el2.stop === 0 ? true : false}
+                        key={i2}
+                        onClick={() => {
+                          if (el2.stop !== 0) {
+                            console.log(el2);
+                            updateModalStatus(4);
+                            updateActiveDish(el2);
+                          }
+                        }}
+                      >
+                        {el2.stop === 0 && (
+                          <DisabledContainer>
+                            <DisabledDish>
+                              В данный момент недоступно
+                            </DisabledDish>
+                          </DisabledContainer>
+                        )}
+                        <ItemImage name={el2.name} rest={el2.rest} />
+                        <ItemDeskContainer>
+                          <ItemDeskName>{el2.name}</ItemDeskName>
+                          <ItemDeskPrice>{el2.price}₽</ItemDeskPrice>
+                        </ItemDeskContainer>
+                      </Item>
+                    ) : (
+                      <Item
+                        key={i2}
+                        onClick={() => {
                           console.log(el2);
                           updateModalStatus(4);
                           updateActiveDish(el2);
-                        }
-                      }}
-                    >
-                      {el2.stop === 0 && (
-                        <DisabledContainer>
-                          <DisabledDish>
-                            В данный момент недоступно
-                          </DisabledDish>
-                        </DisabledContainer>
-                      )}
-                      <ItemImage name={el2.name} rest={el2.rest} />
-                      <ItemDeskContainer>
-                        <ItemDeskName>{el2.name}</ItemDeskName>
-                        <ItemDeskPrice>{el2.price}₽</ItemDeskPrice>
-                      </ItemDeskContainer>
-                    </Item>
-                  ) : (
-                    <Item
-                      key={i2}
-                      onClick={() => {
-                        console.log(el2);
-                        updateModalStatus(4);
-                        updateActiveDish(el2);
-                      }}
-                    >
-                      <ItemImage name={el2.name} rest={el2.rest} />
-                      <ItemDeskContainer>
-                        <ItemDeskName>{el2.name}</ItemDeskName>
-                        <ItemDeskPrice>{el2.price}₽</ItemDeskPrice>
-                      </ItemDeskContainer>
-                    </Item>
-                  ))
-              )}
-          </ItemsContainer>
-        </Section>
-      ))
+                        }}
+                      >
+                        <ItemImage name={el2.name} rest={el2.rest} />
+                        <ItemDeskContainer>
+                          <ItemDeskName>{el2.name}</ItemDeskName>
+                          <ItemDeskPrice>{el2.price}₽</ItemDeskPrice>
+                        </ItemDeskContainer>
+                      </Item>
+                    ))
+                )}
+            </ItemsContainer>
+          </Section>
+        ))
+    ) : (
+      <PulseLoader
+        color="#bcbcbc"
+        css={`
+          height: 200px;
+        `}
+      />
     );
   }, [data, requestStatus, updateActiveDish, updateModalStatus]);
 

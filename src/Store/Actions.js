@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const updateData = (rest) => async (dispatch) => {
+export const updateData = (rest, func) => async (dispatch) => {
   updateRequestStatus(true);
   await axios
     .post("../api/0.1.0/getMenu", { RestId: rest })
@@ -17,6 +17,10 @@ export const updateData = (rest) => async (dispatch) => {
             categories: data.Categories,
             menu: data.Menu,
           },
+        });
+        dispatch({
+          type: "UPDATE_REQUEST_STATUS",
+          payload: true,
         });
       } else {
         dispatch({
