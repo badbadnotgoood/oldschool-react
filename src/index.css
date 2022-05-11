@@ -78,7 +78,7 @@ a {
   text-decoration: unset !important;
 }
 
-button:disabled,
+button:disabled,  
 a:disabled,
 input:disabled,
 label:disabled {

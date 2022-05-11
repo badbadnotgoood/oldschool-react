@@ -450,6 +450,29 @@ const History = ({ userData, restList }) => {
                       </OrderContentContainer>
                     </OrderBlock>
                   ))}
+                {activeOrder.content.content["1"].length > 0 &&
+                  activeOrder.content.content["1"].map((el, i) => (
+                    <OrderBlock key={i}>
+                      <OrderTitleContainer>
+                        <OrderTitle>{el.count + " x " + el.name}</OrderTitle>
+                        <OrderDishPrice>{el.price + "₽"}</OrderDishPrice>
+                      </OrderTitleContainer>
+                      <OrderContentContainer>
+                        {el.adds.map((el2, i) => (
+                          <OrderContent key={i}>
+                            {el2.name}
+                            {el.adds.length > 1 && ", "}
+                          </OrderContent>
+                        ))}
+                        {el.mods.map((el2, i) => (
+                          <OrderContent key={i}>
+                            {el2.name}
+                            {el.mods.length > 1 && ", "}
+                          </OrderContent>
+                        ))}
+                      </OrderContentContainer>
+                    </OrderBlock>
+                  ))}
                 <OrderTitleContainer>
                   <OrderContent>Стоимость заказа</OrderContent>
                   <OrderContent>{activeOrder.price + "₽"}</OrderContent>

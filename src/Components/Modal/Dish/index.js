@@ -64,11 +64,21 @@ const MemoSandContainer = styled.div`
   align-items: flex-start;
 `;
 
+const FillingBlock = styled.div``;
+
+const FillingContainer = styled.div``;
+
+const DishClickFillingMemoContainer = styled.div`
+  flex-direction: column;
+`;
+
 const DishClickBottomButton = styled.button`
   width: 380px;
   height: 55px;
 
-  background: #c91e25;
+  background-color: #c91e25;
+  background-color: ${(props) => props.rest === 0 ? "#c91e25" : props.rest === 1 && "#199869"};
+
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
 
@@ -662,6 +672,7 @@ const StandartRendering = ({
             />
           </DishClickBottomCountContainer>
           <DishClickBottomButton
+            rest={activeDish.rest}
             onClick={() => {
               const data = {
                 Order: dishOrder,
@@ -683,138 +694,509 @@ const SandwichRendering = ({
   updateModalStatus,
   updateBasketList,
 }) => {
-  const [dishOrderCount, setDishOrderCount] = useState(1);
-  const [dishOrderPrice, setDishOrderPrice] = useState(0);
-
-  const [dishOrderDishPrice, setDishOrderDishPrice] = useState(0);
-  const [dishOrderModsPrice, setDishOrderModsPrice] = useState(0);
-  const [dishOrderAddsPrice, setDishOrderAddsPrice] = useState(0);
-
-  const [dishOrderDishActive, setDishOrderDishActive] = useState([]);
-  const [dishOrderModsActive, setDishOrderModsActive] = useState([]);
-  const [dishOrderAddsActive, setDishOrderAddsActive] = useState([]);
-
   const [dishOrder, setDishOrder] = useState();
-
-  const [dishCheckArray, setDishCheckArray] = useState([]);
-  const [modsCheckArray, setModsCheckArray] = useState([]);
-  const [addsCountArray, setAddsCountArray] = useState([]);
 
   const [showHiddenAdds, setShowHiddenAdds] = useState(false);
 
   const AddsButtonRef = useRef(null);
   const AddsRef = useRef(null);
 
-  const [DishArray, setDishArray] = useState([]);
-  const [ModsArray, setModsArray] = useState([]);
-  const [AddsArray, setAddsArray] = useState([]);
+  const [fillingArray, setFillingArray] = useState([]);
+  const [fillingModsArray, setFillingModsArray] = useState([]);
+  const [fillingAddsArray, setFillingAddsArray] = useState([]);
+
+  const [disabled, setDisabled] = useState(true);
+  const [activeFilling, setActiveFilling] = useState(null);
+  const [activeModsArray, setActiveModsArray] = useState([]);
+  const [activeAddsArray, setActiveAddsArray] = useState([]);
+
+  const [dishOrderCount, setDishOrderCount] = useState(1);
+  const [dishOrderPrice, setDishOrderPrice] = useState(
+    activeDish.content[0].price
+  );
+  const [activeModsPrice, setActiveModsPrice] = useState(0);
+  const [activeAddsPrice, setActiveAddsPrice] = useState(0);
 
   useEffect(() => {
     const content = activeDish.content;
-    let tempDishArray = [];
-    content.forEach((el)=>{
-      tempDishArray.push({
-        
-      })
-    })
-    setDishArray(activeDish.content);
+    const tempArray = [];
+    content.forEach((el) => {
+      tempArray.push({
+        name: el.name,
+        price: el.price,
+        addname: el.addname,
+        addprice: el.addprice,
+        addcode: el.addcode,
+        active: false,
+        addactive: false,
+      });
+    });
+    setFillingArray(tempArray);
+    const tempArrayMods = [];
+    content[0].mods.forEach((el) => {
+      if (el.name.length > 0) {
+        tempArrayMods.push({
+          name: el.name,
+          price: el.price,
+          code: el.code,
+          checked: true,
+        });
+      }
+    });
+    setFillingModsArray(tempArrayMods);
+    const tempArrayAdds = [];
+    content[0].adds.forEach((el) => {
+      if (el.name.length > 0) {
+        tempArrayAdds.push({
+          name: el.name,
+          price: el.price,
+          code: el.code,
+          count: 0,
+        });
+      }
+    });
+    setFillingAddsArray(tempArrayAdds);
+    setDishOrderPrice(content[0].price);
   }, [activeDish]);
 
-  
+  useEffect(() => {
+    if (fillingArray.length > 0 && activeFilling !== null) {
+      const tempArray = [];
+      const content = activeDish.content;
+      content.forEach((el, i) => {
+        tempArray.push({
+          name: el.name,
+          price: el.price,
+          addname: el.addname,
+          addprice: el.addprice,
+          addcode: el.addcode,
+          active: i === activeFilling ? true : false,
+          addactive: false,
+        });
+      });
+      setFillingArray(tempArray);
+      setFillingModsArray([]);
+      const tempArrayMods = [];
+      content[activeFilling].mods.forEach((el) => {
+        if (el.name.length > 0) {
+          tempArrayMods.push({
+            name: el.name,
+            price: el.price,
+            code: el.code,
+            checked: true,
+          });
+        }
+      });
+      setFillingModsArray(tempArrayMods);
+      setFillingAddsArray([]);
+      const tempArrayAdds = [];
+      content[activeFilling].adds.forEach((el) => {
+        if (el.name.length > 0) {
+          tempArrayAdds.push({
+            name: el.name,
+            price: el.price,
+            code: el.code,
+            count: 0,
+          });
+        }
+      });
+      setFillingAddsArray(tempArrayAdds);
+      setDishOrderPrice(content[activeFilling].price);
+    }
+  }, [
+    activeDish,
+    activeFilling,
+    setFillingArray,
+    setFillingModsArray,
+    setFillingAddsArray,
+  ]);
 
   useEffect(() => {
-    setDishOrderModsActive([]);
-    setDishOrderModsPrice(0);
+    setActiveModsArray([]);
+    setActiveModsPrice(0);
     let tempNewModsArr = [];
     let tempNewModsPrice = 0;
-    modsCheckArray.forEach((el) => {
+    fillingModsArray.forEach((el) => {
       if (!el.checked) {
         tempNewModsArr.push(el);
         tempNewModsPrice = tempNewModsPrice + el.price;
       }
     });
-    setDishOrderModsActive([...tempNewModsArr]);
-    setDishOrderModsPrice(tempNewModsPrice);
-  }, [modsCheckArray, setDishOrderModsActive, setDishOrderModsPrice]);
+    setActiveModsArray(tempNewModsArr);
+    setActiveModsPrice(tempNewModsPrice);
+  }, [fillingModsArray, setActiveModsArray, setActiveModsPrice]);
 
   useEffect(() => {
-    setDishOrderAddsActive([]);
-    setDishOrderAddsPrice(0);
+    setActiveAddsArray([]);
+    setActiveAddsPrice(0);
     let tempNewAddsArr = [];
     let tempNewAddsPrice = 0;
-    addsCountArray.forEach((el) => {
+    fillingAddsArray.forEach((el) => {
       if (el.count > 0) {
         tempNewAddsArr.push(el);
         tempNewAddsPrice = tempNewAddsPrice + el.price * el.count;
       }
     });
-    setDishOrderAddsActive([...tempNewAddsArr]);
-    setDishOrderAddsPrice(tempNewAddsPrice);
-  }, [addsCountArray, setDishOrderAddsActive, setDishOrderAddsPrice]);
+    fillingArray.forEach((el) => {
+      if (el.addactive) {
+        tempNewAddsArr.push({
+          code: el.addcode,
+          name: el.addname,
+          price: el.addprice,
+          count: 1,
+        });
+        tempNewAddsPrice = tempNewAddsPrice + el.addprice * 1;
+      }
+    });
+    setActiveAddsArray(tempNewAddsArr);
+    setActiveAddsPrice(tempNewAddsPrice);
+  }, [fillingAddsArray, fillingArray, setActiveAddsArray, setActiveAddsPrice]);
 
   useEffect(() => {
-    setDishOrderPrice(
-      (activeDish.price + dishOrderModsPrice + dishOrderAddsPrice) *
-        dishOrderCount
-    );
+    if (fillingArray.length > 0 && activeFilling !== null) {
+      setDishOrderPrice(
+        (fillingArray[activeFilling].price +
+          activeAddsPrice +
+          activeModsPrice) *
+          dishOrderCount
+      );
+    }
   }, [
-    activeDish.price,
+    activeFilling,
+    fillingArray,
     setDishOrderPrice,
-    dishOrderModsPrice,
-    dishOrderAddsPrice,
+    activeAddsPrice,
+    activeModsPrice,
     dishOrderCount,
   ]);
 
   useEffect(() => {
-    setDishOrder({
-      name: activeDish.name,
-      code: activeDish.code,
-      priceOne: dishOrderPrice / dishOrderCount,
-      price: dishOrderPrice,
-      count: dishOrderCount,
-      mods: dishOrderModsActive,
-      adds: dishOrderAddsActive,
-      rest: activeDish.rest,
-    });
+    if (activeFilling !== null) {
+      const content = activeDish.content[activeFilling];
+      setDishOrder({
+        name: activeDish.name + " " + content.name.toLowerCase(),
+        code: content.code,
+        priceOne: dishOrderPrice / dishOrderCount,
+        price: dishOrderPrice,
+        count: dishOrderCount,
+        mods: activeModsArray,
+        adds: activeAddsArray,
+        rest: activeDish.rest,
+      });
+      console.log(dishOrder);
+    }
   }, [
     activeDish,
+    fillingArray,
     dishOrderPrice,
     dishOrderCount,
-    dishOrderModsActive,
-    dishOrderAddsActive,
+    activeModsArray,
+    activeAddsArray,
   ]);
 
-  useEffect(() => {
-    setModsCheckArray([]);
-    ModsArray.forEach((el) => {
-      setModsCheckArray((arr) => [
-        ...arr,
-        {
-          name: el.name,
-          price: el.price,
-          code: el.code,
-          checked: true,
-        },
-      ]);
+  const FillingMemo = useMemo(() => {
+    const tempArray = [...fillingArray];
+    let isActiveGlobal = false;
+    tempArray.forEach((el2, i2) => {
+      if (el2.active) {
+        isActiveGlobal = true;
+      }
     });
-  }, [ModsArray, setModsCheckArray]);
+    if (fillingArray.length > 0) {
+      return (
+        <MemoSandContentContainer>
+          {fillingArray.map((el1, i1) => (
+            <MemoSandItem
+              key={i1}
+              onClick={() => {
+                const tempArray = [...fillingArray];
+                const tempItem = { ...tempArray[i1] };
+                let isActive = false;
+                let isActiveId;
+                tempArray.forEach((el2, i2) => {
+                  if (el2.active) {
+                    isActive = true;
+                    isActiveId = i2;
+                  }
+                });
+                if (!isActive) {
+                  tempItem.active = true;
+                  tempItem.addactive = false;
+                  setActiveFilling(i1);
+                  setDisabled(false);
+                } else {
+                  if (i1 === isActiveId) {
+                    tempItem.active = false;
+                    tempArray.forEach((el) => {
+                      el.addactive = false;
+                    });
+                    setDisabled(true);
+                    const tempModsArr = [...fillingModsArray];
+                    tempModsArr.forEach((el) => {
+                      el.checked = true;
+                    });
+                    const tempAddsArr = [...fillingAddsArray];
+                    tempAddsArr.forEach((el) => {
+                      el.count = 0;
+                    });
+                    setFillingModsArray(tempModsArr);
+                    setFillingAddsArray(tempAddsArr);
+                  } else {
+                    if (!tempItem.addactive) {
+                      tempItem.addactive = true;
+                    } else {
+                      tempItem.addactive = false;
+                    }
+                  }
+                }
+                tempArray[i1] = tempItem;
+                setFillingArray(tempArray);
+              }}
+            >
+              <MemoSandItemName>{el1.name}</MemoSandItemName>
+              <MemoSandItemPrice
+                status={(el1.active && 1) || (el1.addactive && 2)}
+              >
+                {isActiveGlobal
+                  ? el1.active
+                    ? ""
+                    : el1.addprice + "₽"
+                  : el1.price + "₽"}
+              </MemoSandItemPrice>
+            </MemoSandItem>
+          ))}
+        </MemoSandContentContainer>
+      );
+    }
+  }, [fillingArray, setFillingArray, setDisabled]);
 
-  useEffect(() => {
-    setAddsCountArray([]);
-    AddsArray.forEach((el) => {
-      setAddsCountArray((arr) => [
-        ...arr,
-        {
-          name: el.name,
-          price: el.price,
-          code: el.code,
-          count: 0,
-        },
-      ]);
-    });
-  }, [AddsArray, setAddsCountArray]);
+  const MemoMods = useMemo(() => {
+    console.log(disabled);
+    return (
+      fillingModsArray && (
+        <DishClickModsMemoContainer
+          disabled={disabled ? true : false}
+          style={disabled ? { opacity: 0.5 } : {}}
+        >
+          {fillingModsArray.map((el, i) => (
+            <DishClickModsCheckboxLabel key={i}>
+              <DishClickModsCheckboxInput
+                disabled={disabled ? true : false}
+                value={el.code}
+                checked={el.checked}
+                onChange={() => {
+                  let tempModsArr = [...fillingModsArray];
+                  tempModsArr[i].checked = !tempModsArr[i].checked;
+                  setFillingModsArray(tempModsArr);
+                }}
+              />
+              <DishClickModsCheckboxLabelText>
+                {el.name}
+              </DishClickModsCheckboxLabelText>
+            </DishClickModsCheckboxLabel>
+          ))}
+        </DishClickModsMemoContainer>
+      )
+    );
+  }, [fillingModsArray, activeFilling, disabled]);
 
-  return activeDish && <>Hello!</>;
+  const MemoAdds = useMemo(() => {
+    return (
+      fillingAddsArray && (
+        <DishClickAddsMemoContainer
+          disabled={disabled ? true : false}
+          style={disabled ? { opacity: 0.5 } : {}}
+        >
+          {fillingAddsArray.map(
+            (el, i) =>
+              i < 8 && (
+                <DishClickAddContainer
+                  key={i}
+                  disabled={disabled ? true : false}
+                >
+                  <DishClickAddInfoContainer>
+                    <DishClickAddName>{el.name}</DishClickAddName>
+                    <DishClickAddPrice>{el.price + "₽"}</DishClickAddPrice>
+                  </DishClickAddInfoContainer>
+                  <DishClickAddCountContainer>
+                    {el.count > 0 && (
+                      <>
+                        <DishClickAddCountMinus
+                          disabled={disabled ? true : false}
+                          onClick={() => {
+                            let tempAddsArr = [...fillingAddsArray];
+                            if (tempAddsArr[i].count > 0) {
+                              tempAddsArr[i].count--;
+                              setFillingAddsArray(tempAddsArr);
+                            }
+                          }}
+                        />
+                        <DishClickAddCountText>
+                          {el.count}
+                        </DishClickAddCountText>
+                      </>
+                    )}
+                    <DishClickAddCountPlus
+                      disabled={disabled ? true : false}
+                      onClick={() => {
+                        let tempAddsArr = [...fillingAddsArray];
+                        if (tempAddsArr[i].count < 5) {
+                          tempAddsArr[i].count++;
+                          setFillingAddsArray(tempAddsArr);
+                        }
+                      }}
+                    />
+                  </DishClickAddCountContainer>
+                </DishClickAddContainer>
+              )
+          )}
+          {fillingAddsArray.length >= 8 && (
+            <MemoAddsSecondContainer>
+              <MemoAddsSecondText>Другие дополнения</MemoAddsSecondText>
+              <MemoAddsSecondButton
+                ref={AddsButtonRef}
+                disabled={disabled ? true : false}
+                onClick={(e) => {
+                  e.target.classList.toggle("active-adds");
+                  setShowHiddenAdds(!showHiddenAdds);
+                }}
+              />
+              {showHiddenAdds && (
+                <MemoAddsSecondHiddenContainer ref={AddsRef}>
+                  {fillingAddsArray.map(
+                    (el, i) =>
+                      i >= 8 && (
+                        <DishClickAddContainer key={i}>
+                          <DishClickAddInfoContainer>
+                            <DishClickAddName>{el.name}</DishClickAddName>
+                            <DishClickAddPrice>{el.price}₽</DishClickAddPrice>
+                          </DishClickAddInfoContainer>
+                          <DishClickAddCountContainer>
+                            {el.count > 0 && (
+                              <>
+                                <DishClickAddCountMinus
+                                  disabled={disabled ? true : false}
+                                  onClick={() => {
+                                    let tempAddsArr = [...fillingAddsArray];
+                                    if (tempAddsArr[i].count > 0) {
+                                      tempAddsArr[i].count--;
+                                      setFillingAddsArray(tempAddsArr);
+                                    }
+                                  }}
+                                />
+                                <DishClickAddCountText>
+                                  {el.count}
+                                </DishClickAddCountText>
+                              </>
+                            )}
+                            <DishClickAddCountPlus
+                              disabled={disabled ? true : false}
+                              onClick={() => {
+                                let tempAddsArr = [...fillingAddsArray];
+                                if (tempAddsArr[i].count < 5) {
+                                  tempAddsArr[i].count++;
+                                  setFillingAddsArray(tempAddsArr);
+                                }
+                              }}
+                            />
+                          </DishClickAddCountContainer>
+                        </DishClickAddContainer>
+                      )
+                  )}
+                </MemoAddsSecondHiddenContainer>
+              )}
+            </MemoAddsSecondContainer>
+          )}
+        </DishClickAddsMemoContainer>
+      )
+    );
+  }, [
+    fillingAddsArray,
+    activeFilling,
+    showHiddenAdds,
+    setShowHiddenAdds,
+    disabled,
+  ]);
+
+  return (
+    activeDish && (
+      <DishClickContainer
+        onClick={(e) => {
+          if (showHiddenAdds && !AddsRef.current.contains(e.target)) {
+            AddsButtonRef.current.click();
+          }
+        }}
+      >
+        <DishClickNameContainer>
+          <DishClickName>{activeDish.name}</DishClickName>
+          <DishClickExit
+            onClick={() => {
+              updateModalStatus(0);
+            }}
+          >
+            <DishClickExitCross />
+            <DishClickExitCross />
+          </DishClickExit>
+        </DishClickNameContainer>
+        <DishClickModifiersContainer>
+          {fillingArray.length > 0 && (
+            <DishClickModsContainer>
+              <DishClickModdifiersName>Выбор мяса</DishClickModdifiersName>
+              {FillingMemo}
+            </DishClickModsContainer>
+          )}
+          {fillingModsArray.length > 0 && (
+            <DishClickModsContainer>
+              <DishClickModdifiersName>Состав</DishClickModdifiersName>
+              {MemoMods}
+            </DishClickModsContainer>
+          )}
+          {fillingAddsArray.length > 0 && (
+            <DishClickAddsContainer>
+              <DishClickModdifiersName>Дополнения</DishClickModdifiersName>
+              {MemoAdds}
+            </DishClickAddsContainer>
+          )}
+        </DishClickModifiersContainer>
+        <DishClickBottomContainer>
+          <DishClickBottomCountContainer>
+            <DishClickBottomCountMinus
+              onClick={() => {
+                if (dishOrderCount > 1) {
+                  setDishOrderCount(dishOrderCount - 1);
+                }
+              }}
+            />
+            <DishClickBottomCountText>
+              {dishOrderCount}
+            </DishClickBottomCountText>
+            <DishClickBottomCountPlus
+              onClick={() => {
+                if (dishOrderCount < 14) {
+                  setDishOrderCount(dishOrderCount + 1);
+                }
+              }}
+            />
+          </DishClickBottomCountContainer>
+          <DishClickBottomButton
+            rest={activeDish.rest}
+            disabled={disabled ? true : false}
+            onClick={() => {
+              if (!disabled) {
+                const data = {
+                  Order: dishOrder,
+                };
+                updateModalStatus(0);
+                updateBasketList(data);
+              }
+            }}
+          >
+            В корзину {dishOrderPrice + "₽"}
+          </DishClickBottomButton>
+        </DishClickBottomContainer>
+      </DishClickContainer>
+    )
+  );
 };
 
 const Dish = ({ activeDish, updateModalStatus, updateBasketList }) => {

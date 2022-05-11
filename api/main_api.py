@@ -270,15 +270,16 @@ def get_menu():
                                 add_code = el4["code"]
                                 add_name = addsmods_name
                             else:
-                                temp_moddifier = {
-                                    "name": addsmods_name,
-                                    "code": el4["code"],
-                                    "price": el4["price"] // 100,
-                                }
-                                if "БЕЗ" in groupname:
-                                    mods.append(temp_moddifier)
-                                elif "ДОП" in groupname:
-                                    adds.append(temp_moddifier)
+                                if addsmods_name not in data_sandwich_adds_names:
+                                    temp_moddifier = {
+                                        "name": addsmods_name,
+                                        "code": el4["code"],
+                                        "price": el4["price"] // 100,
+                                    }
+                                    if "БЕЗ" in groupname:
+                                        mods.append(temp_moddifier)
+                                    elif "ДОП" in groupname:
+                                        adds.append(temp_moddifier)
                     temp_constructor_array.append({
                         "name": name,
                         "code": el2["code"],
@@ -338,16 +339,16 @@ def get_menu():
                         for el4 in data_modsadds:
                             if el4["name1"] in el3["name"]:
                                 addsmods_name = el4["name2"]
-
-                        temp_moddifier = {
-                            "name": addsmods_name,
-                            "code": el3["code"],
-                            "price": el3["price"] // 100,
-                        }
-                        if "БЕЗ" in groupname:
-                            mods.append(temp_moddifier)
-                        elif "ДОП" in groupname:
-                            adds.append(temp_moddifier)
+                        if addsmods_name not in data_sandwich_adds_names:
+                            temp_moddifier = {
+                                "name": addsmods_name,
+                                "code": el3["code"],
+                                "price": el3["price"] // 100,
+                            }
+                            if "БЕЗ" in groupname:
+                                mods.append(temp_moddifier)
+                            elif "ДОП" in groupname:
+                                adds.append(temp_moddifier)
 
                 response_menu.append({
                     "name": name,
@@ -376,6 +377,8 @@ def get_menu():
             "RestList": rest_list,
             "Categories": categories,
             "Menu": response_menu,
+            "Port": port,
+            "Token": token
         })
     else:
         return json.dumps({

@@ -705,7 +705,7 @@ const Menu = ({ data, requestStatus, updateModalStatus, updateActiveDish }) => {
                 data.menu.map(
                   (el2, i2) =>
                     el2.categname === el1 &&
-                    (el2.constructor !== true ? (
+                    (!el2.constructor ? (
                       <Item
                         disabled={el2.stop === 0 ? true : false}
                         key={i2}
@@ -742,7 +742,7 @@ const Menu = ({ data, requestStatus, updateModalStatus, updateActiveDish }) => {
                         <ItemImage name={el2.name} rest={el2.rest} />
                         <ItemDeskContainer>
                           <ItemDeskName>{el2.name}</ItemDeskName>
-                          <ItemDeskPrice>{el2.price}₽</ItemDeskPrice>
+                          <ItemDeskPrice>Конструктор {el2.content[0].price}₽</ItemDeskPrice>
                         </ItemDeskContainer>
                       </Item>
                     ))
